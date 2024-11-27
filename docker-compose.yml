@@ -1,0 +1,35 @@
+services:
+  task-management-jpa-postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: task-management-jpa_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - task-management-jpa-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5460:5432"
+    networks:
+      - task-management-jpa-network
+
+  task-management-jpa-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8888:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://task-management-jpa-postgres:5432/task-management-jpa_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345
+    depends_on:
+      - task-management-jpa-postgres
+    networks:
+      - task-management-jpa-network
+volumes:
+  task-management-jpa-postgres-data:
+networks:
+  task-management-jpa-network:
+    driver: bridge
